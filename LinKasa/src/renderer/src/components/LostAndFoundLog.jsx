@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import Utils from '../controller/Utils';
-import { collection, getDocs } from 'firebase/firestore';
-import { db } from '../../../../firebase.config';
+import { collection, deleteDoc, getDocs } from 'firebase/firestore';
+import { db, storage } from '../../../../firebase.config';
 import { Link, Outlet } from 'react-router-dom';
+import { deleteObject, ref } from 'firebase/storage';
 
 const LostAndFoundLog = () => {
   const authorized = Utils.useRoleCheck('Lost and Found Staff');
@@ -25,10 +26,22 @@ const LostAndFoundLog = () => {
     fetchLostItems();
   }, [authorized]);
 
-  const handleRemoveItem = () => {
-    // remove item from firebase firestore
-    const itemsRef = collection(db, 'items');
-
+  const handleRemoveItem = async (itemName) => {
+    const q = Utils.queryFromCollection('items', 'name', itemName);
+    const querySnapshot = await getDocs(q);
+    querySnapshot.forEach((doc) => {
+      const userData = doc.data();
+      const url = userData.image_url;
+      if(url) {
+        const storageRef = ref(storage, url);
+        deleteObject(storageRef).then(() => {
+          deleteDoc(doc.ref).then(() => {
+            alert('Item removed successfully.');
+            window.location.reload();
+          });
+        });
+      }
+    });
   }
 
   if(!authorized){

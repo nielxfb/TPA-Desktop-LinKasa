@@ -3,7 +3,7 @@ import Utils from '../controller/Utils'
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { db, storage } from '../../../../firebase.config';
 import ReactModal from 'react-modal';
-import { Timestamp, addDoc, collection, getDocs } from 'firebase/firestore';
+import { Timestamp, addDoc, collection } from 'firebase/firestore';
 
 ReactModal.setAppElement('#root');
 
