@@ -1,6 +1,6 @@
-import { Timestamp, addDoc, getDocs } from 'firebase/firestore';
+import { Timestamp, addDoc, collection, getDocs } from 'firebase/firestore';
 import React, { useState } from 'react';
-import { auth } from '../../../../firebase.config';
+import { auth, db } from '../../../../firebase.config';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import Utils from '../controller/Utils';
 
@@ -67,6 +67,8 @@ function NewStaffForm() {
     const email = tempEmail;
     const password = `linkasa${dob.replace(/-/g, '')}`;
 
+    const usersRef = collection(db, 'users');
+
     const datas = {
       address: address,
       dob: Timestamp.fromDate(new Date(dob)),
@@ -77,12 +79,13 @@ function NewStaffForm() {
     }
 
     if(nameUnique && ageValid && emailUnique){
-      await addDoc(usersRef, datas);
+      await addDoc(usersRef, datas).then(() => {
+        createUserWithEmailAndPassword(auth, email, password);
+        alert('Successfully created new staff data!');
 
-      createUserWithEmailAndPassword(auth, email, password);
-      alert('Successfully created new staff data!');
+        window.location.reload();
 
-      window.location.reload();
+      });
     }
   }
 

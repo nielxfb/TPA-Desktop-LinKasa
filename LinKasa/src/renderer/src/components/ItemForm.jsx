@@ -1,5 +1,11 @@
 import React, { useState } from 'react'
 import Utils from '../controller/Utils'
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
+import { db, storage } from '../../../../firebase.config';
+import ReactModal from 'react-modal';
+import { Timestamp, addDoc, collection, getDocs } from 'firebase/firestore';
+
+ReactModal.setAppElement('#root');
 
 function ItemForm() {
   const authorized = Utils.useRoleCheck('Lost and Found Staff');
@@ -7,14 +13,52 @@ function ItemForm() {
   const [description, setDescription] = useState('');
   const [image, setImage] = useState(null);
   const [error, setError] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState('');
 
-  const handleNewItem = () => {
-    
+  const handleNewItem = (e) => {
+    e.preventDefault();
+
+    setIsModalOpen(true);
   }
 
   const handleImageChange = (e) => {
     const selectedImage = e.target.files[0];
     setImage(selectedImage);
+  }
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+
+    if(!selectedStatus){
+      setError('Please set item status!');
+      return;
+    } else {
+      setError('');
+    }
+
+    const storageRef = ref(storage, 'images/' + image.name);
+    uploadBytes(storageRef, image).then((snapshot) => {
+      getDownloadURL(snapshot.ref).then((url) => {
+        const itemsRef = collection(db, 'items');
+
+        addDoc(itemsRef, {
+          description: description,
+          found_at: Timestamp.fromDate(new Date()),
+          image_url: url,
+          name: name,
+          status: selectedStatus
+        }).then(() => {
+          alert('Successfully uploaded new lost item!');
+          window.location.reload();
+        });
+      });
+    });
+  }
+
+  const handleStatusChange = (status) => {
+    if(selectedStatus === status) setSelectedStatus('');
+    else if(selectedStatus != status) setSelectedStatus(status);
   }
 
   if(!authorized){
@@ -81,6 +125,31 @@ function ItemForm() {
           Submit Item
         </button>
       </form>
+      <ReactModal
+        isOpen={isModalOpen}
+        onRequestClose={closeModal}
+        contentLabel='Status Modal'
+        className=''
+      >
+        <div className='flex flex-col justify-center items-center gap-2'>
+          <h1 className='text-xl font-bold'>Please set the status</h1>
+          <div className='flex flex-row gap-2 mt-4'>
+            <button
+              onClick={() => handleStatusChange('Unclaimed')}
+              className={`text-white px-4 py-2 rounded-md ${selectedStatus === 'Unclaimed' ? 'bg-red-500' : 'bg-gray-500'}`}
+            >
+              Unclaimed
+            </button>
+            <button
+              onClick={() => handleStatusChange('Returned to Owner')}
+              className={`text-white px-4 py-2 rounded-md ${selectedStatus === 'Returned to Owner' ? 'bg-green-500' : 'bg-gray-500'}`}
+            >
+              Returned to Owner
+            </button>
+          </div>
+          <button onClick={closeModal} className='bg-blue-500 text-white px-4 py-2 rounded-md mt-4'>Close</button>
+        </div>
+      </ReactModal>
     </div>
   )
 }

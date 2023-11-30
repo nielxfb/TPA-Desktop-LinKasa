@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import Utils from '../controller/Utils';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../../../../firebase.config';
-import { Link } from 'react-router-dom';
+import { Link, Outlet } from 'react-router-dom';
 
 const LostAndFoundLog = () => {
   const authorized = Utils.useRoleCheck('Lost and Found Staff');
@@ -11,7 +11,7 @@ const LostAndFoundLog = () => {
   useEffect(() => {
     const fetchLostItems = async () => {
       if(!authorized) return;
-      const q = collection(db, 'lost_items');
+      const q = collection(db, 'items');
       const querySnapshot = await getDocs(q);
       const items = [];
       querySnapshot.forEach((doc) => {
@@ -24,6 +24,12 @@ const LostAndFoundLog = () => {
 
     fetchLostItems();
   }, [authorized]);
+
+  const handleRemoveItem = () => {
+    // remove item from firebase firestore
+    const itemsRef = collection(db, 'items');
+
+  }
 
   if(!authorized){
     return (
@@ -45,6 +51,7 @@ const LostAndFoundLog = () => {
               <th className='border px-4 py-2'>Description</th>
               <th className='border px-4 py-2'>Image</th>
               <th className='border px-4 py-2'>Date Found</th>
+              <th className='border px-4 py-2'>Status</th>
               <th className='border px-4 py-2'>Action</th>
             </tr>
           </thead>
@@ -55,19 +62,33 @@ const LostAndFoundLog = () => {
                 <td className='border px-4 py-2'>{item.name}</td>
                 <td className='border px-4 py-2'>{item.description}</td>
                 <td className='border px-4 py-2'>
-                  {item.image && <img src={item.image} alt={`Lost Item ${index + 1}`} className='max-w-full' />}
+                  {item.image_url && <img src={item.image_url} alt={`Lost Item ${index + 1}`} className='max-w-full' />}
                 </td>
-                <td className='border px-4 py-2'>{item.date_found}</td>
-                <td>
-                  <button>Edit</button>
-                  <button>Remove</button>
+                <td className='border px-4 py-2'>{item.found_at?.toDate().toLocaleString()}</td>
+                <td className='border px-4 py-2'>{item.status}</td>
+                <td className='text-center'>
+                  <div className='inline-flex justify-center p-1'>
+                    <button className='bg-green-500 text-white py-1 px-2 rounded-md mr-2'>Edit</button>
+                    <button
+                      className='bg-red-500 text-white py-1 px-2 rounded-md'
+                      onClick={() => handleRemoveItem(item.name)}
+                    >
+                      Remove
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       )}
-      <Link href='/lost-and-found-log/update' className='mt-2 px-4 py-2 text-white bg-slate-500 rounded-md shadow-lg'>Update Lost and Found Log</Link>
+      <Link
+        to='/lost-and-found-log/update'
+        className='mt-2 px-4 py-2 text-white bg-slate-500 rounded-md shadow-lg'
+      >
+        Update Lost and Found Log
+      </Link>
+      <Outlet />
     </div>
   )
 }
