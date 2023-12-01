@@ -129,7 +129,6 @@ function ItemForm() {
         isOpen={isModalOpen}
         onRequestClose={closeModal}
         contentLabel='Status Modal'
-        className=''
       >
         <div className='flex flex-col justify-center items-center gap-2'>
           <h1 className='text-xl font-bold'>Please set the status</h1>
