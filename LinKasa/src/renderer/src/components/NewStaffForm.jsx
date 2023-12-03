@@ -1,76 +1,6 @@
-import { Timestamp, addDoc, collection, getDocs } from 'firebase/firestore';
 import React, { useState } from 'react';
-import { auth, db } from '../../../../firebase.config';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
 import Utils from '../controller/Utils';
-
-function handleCreateStaff(e, name, dob, address, role, setError) {
-  e.preventDefault();
-
-  const checkUniqueName = async () => {
-    const querySnapshot = await getDocs(Utils.queryFromCollection('users', 'name', name));
-    return querySnapshot.empty;
-  };
-
-  const checkUniqueEmail = async (email) => {
-    const querySnapshot = await getDocs(Utils.queryFromCollection('users', 'email', email));
-    return querySnapshot.empty;
-  };
-
-  const generateUniqueEmail = async (firstName, lastName) => {
-    let counter = 1;
-    let email = `${firstName}${lastName}@linkasa.co`;
-
-    while (!(await checkUniqueEmail(email))) {
-      email = `${firstName}${lastName}.${('00' + counter).slice(-3)}@linkasa.co`;
-      counter++;
-    }
-
-    return email;
-  };
-
-  const createStaff = async () => {
-    const birthDate = new Date(dob).getTime();
-    const currDate = new Date().getTime();
-    const eighteenInMs = new Date('1988-01-01').getTime();
-    const ageInMs = currDate - birthDate;
-    const ageValid = ageInMs >= eighteenInMs;
-
-    if (!ageValid) {
-      setError('Staff must be more than 18 years old!');
-      return;
-    }
-
-    const nameArray = name.split(' ');
-    const firstName = nameArray[0].toLowerCase();
-    const lastName = nameArray.length > 1 ? `.${nameArray[nameArray.length - 1].toLowerCase()}` : '';
-
-    const email = await generateUniqueEmail(firstName, lastName);
-    const password = `linkasa${dob.replace(/-/g, '')}`;
-
-    const usersRef = collection(db, 'users');
-
-    const data = {
-      address: address,
-      dob: Timestamp.fromDate(new Date(dob)),
-      email: email,
-      name: name,
-      password: password,
-      role: role,
-    };
-
-    if (await checkUniqueName() && ageValid && await checkUniqueEmail(email)) {
-      await addDoc(usersRef, data);
-      createUserWithEmailAndPassword(auth, email, password);
-      alert('Successfully created new staff data!');
-      window.location.reload();
-    } else {
-      setError('Staff already exists!');
-    }
-  };
-
-  createStaff();
-}
+import StaffController from '../controller/StaffController';
 
 function NewStaffForm() {
   const authorized = Utils.useRoleCheck('HRD');
@@ -80,50 +10,54 @@ function NewStaffForm() {
   const [role, setRole] = useState('Customer Service Manager');
   const [error, setError] = useState('');
 
-  if(!authorized){
+  if (!authorized) {
     return (
-      <h1 className='flex flex-row justify-center text-2xl font-bold mt-4'>You are not authorized.</h1>
+      <h1 className='flex flex-row justify-center text-2xl font-bold mt-4'>
+        You are not authorized.
+      </h1>
     );
   }
 
   return (
     <div className="max-w-md mx-auto mt-8 p-8 bg-white shadow-lg rounded-md">
       <h2 className="text-2xl font-semibold mb-4">Create New Staff</h2>
-      <form onSubmit={(e) => handleCreateStaff(e, name, dob, address, role, setError)}>
-      <div className="mb-4">
-        <label htmlFor="name" className="block text-sm font-medium text-gray-600">
-          Name
-        </label>
-        <input
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="mt-1 p-2 w-full border rounded-md"
-          required
-        />
-      </div>
-      <div className="mb-4">
-        <label htmlFor="dob" className="block text-sm font-medium text-gray-600">
-          Date of Birth
-        </label>
-        <input
-          type="date"
-          value={dob}
-          onChange={(e) => setDob(e.target.value)}
-          className="mt-1 p-2 w-full border rounded-md"
-          required
-        />
-      </div>
-      <div className="mb-4">
-        <label htmlFor="address" className="block text-sm font-medium text-gray-600">
-          Address
-        </label>
-        <input
-          type="text"
-          className="mt-1 p-2 w-full border rounded-md"
-          required
-        />
-      </div>
+      <form onSubmit={(e) => StaffController(e, name, dob, address, role, setError)}>
+        <div className="mb-4">
+          <label htmlFor="name" className="block text-sm font-medium text-gray-600">
+            Name
+          </label>
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="mt-1 p-2 w-full border rounded-md"
+            required
+          />
+        </div>
+        <div className="mb-4">
+          <label htmlFor="dob" className="block text-sm font-medium text-gray-600">
+            Date of Birth
+          </label>
+          <input
+            type="date"
+            value={dob}
+            onChange={(e) => setDob(e.target.value)}
+            className="mt-1 p-2 w-full border rounded-md"
+            required
+          />
+        </div>
+        <div className="mb-4">
+          <label htmlFor="address" className="block text-sm font-medium text-gray-600">
+            Address
+          </label>
+          <input
+            type="text"
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
+            className="mt-1 p-2 w-full border rounded-md"
+            required
+          />
+        </div>
         <div className="mb-4">
           <label htmlFor="role" className="block text-sm font-medium text-gray-600">
             Role
@@ -179,3 +113,4 @@ function NewStaffForm() {
 }
 
 export default NewStaffForm
+

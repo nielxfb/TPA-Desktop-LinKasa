@@ -28,6 +28,8 @@ function NavbarController() {
     getUsers();
   }, [q, role]);
 
+  console.log(role);
+
   return (
     <>
         {role === 'HRD' && (
@@ -35,6 +37,9 @@ function NavbarController() {
         )}
         {role === 'Lost and Found Staff' && (
           <a href="/lost-and-found-log" className="text-white hover:text-gray-300">View Lost and Found Log</a>
+        )}
+        {(role === 'Flight Operations Manager' || role === 'COO') && (
+          <a href="/flight-schedules" className="text-white hover:text-gray-300">View Real-time Flight Schedules</a>
         )}
         <a href="/" onClick={() => signOut(auth)} className="text-white hover:text-gray-300">Log Out</a>
     </>

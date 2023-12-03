@@ -29,7 +29,7 @@ const LostAndFoundLog = () => {
     }
 
     fetchLostItems();
-  }, [authorized]);
+  }, []);
 
   const useOpenModal = (itemName) => {
     setSelectedItemName(itemName);
