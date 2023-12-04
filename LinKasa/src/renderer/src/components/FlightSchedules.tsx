@@ -1,18 +1,19 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import Utils from '../controller/Utils';
 import { collection, getDocs } from 'firebase/firestore';
-import { db } from '../../../../firebase.config';
+import { Schedule } from '@renderer/model/Schedule';
+import { db } from './../../../firebase/firebase';
 
 function FlightSchedules() {
   const authorized = Utils.useRoleCheck('Flight Operations Manager') || Utils.useRoleCheck('COO');
-  const [schedules, setSchedules] = useState([])
+  const [schedules, setSchedules] = useState<Schedule[]>([])
   useEffect(() => {
     const fetchSchedules = async () => {
       const q = collection(db, 'departures');
       const querySnapshot = await getDocs(q);
-      const departures = [];
+      const departures: Schedule[] = [];
       querySnapshot.forEach((doc) => {
-        const departureData = doc.data();
+        const departureData = doc.data() as Schedule;
         departures.push(departureData);
       });
 
@@ -21,6 +22,10 @@ function FlightSchedules() {
 
     fetchSchedules();
   }, []);
+
+  useEffect(() => {
+    console.log('Schedules:', schedules);
+  }, [schedules])
 
   if(!authorized){
     return (

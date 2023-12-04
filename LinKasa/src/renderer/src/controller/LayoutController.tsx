@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from 'react'
-import { auth, db } from '../../../../firebase.config';
+import { useEffect, useState } from 'react'
 import { onAuthStateChanged } from 'firebase/auth';
 import LoginForm from '../components/LoginForm';
 import { collection, getDocs, query, where } from 'firebase/firestore';
+import { auth, db } from '../../../firebase/firebase';
 
 function LayoutController() {
   const [logged, setLogged] = useState(false);
-  const [email, setEmail] = useState('');
-  const [name, setName] = useState('');
+  const [email, setEmail] = useState<string>('');
+  const [name, setName] = useState<string>('');
 
   onAuthStateChanged(auth, (user) => {
     if(user){

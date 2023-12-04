@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react'
-import { auth, db } from '../../../../firebase.config'
+import { useEffect, useState } from 'react'
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { collection, getDocs, query, where } from 'firebase/firestore';
+import { auth, db } from '../../../firebase/firebase';
 
-function NavbarController() {
+function NavbarController() : JSX.Element {
   const [email, setEmail] = useState('');
   const [role, setRole] = useState('');
 
@@ -45,3 +45,4 @@ function NavbarController() {
 }
 
 export default NavbarController
+

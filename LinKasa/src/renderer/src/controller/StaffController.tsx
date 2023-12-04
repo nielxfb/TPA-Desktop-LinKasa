@@ -1,9 +1,9 @@
-import { auth, db } from '../../../../firebase.config';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import Utils from '../controller/Utils';
 import { Timestamp, addDoc, collection, getDocs } from 'firebase/firestore';
+import { auth, db } from '../../../firebase/firebase';
 
-function StaffController(e, name, dob, address, role, setError) {
+function StaffController(e, name: string, dob: string, address: string, role: string, setError) {
   e.preventDefault();
 
   const checkUniqueName = async () => {
@@ -11,12 +11,12 @@ function StaffController(e, name, dob, address, role, setError) {
     return querySnapshot.empty;
   };
 
-  const checkUniqueEmail = async (email) => {
+  const checkUniqueEmail = async (email: string) => {
     const querySnapshot = await getDocs(Utils.queryFromCollection('users', 'email', email));
     return querySnapshot.empty;
   };
 
-  const generateUniqueEmail = async (firstName, lastName) => {
+  const generateUniqueEmail = async (firstName: string, lastName: string) => {
     let counter = 1;
     let email = `${firstName}${lastName}@linkasa.co`;
 
@@ -59,10 +59,12 @@ function StaffController(e, name, dob, address, role, setError) {
     };
 
     if (await checkUniqueName() && ageValid && await checkUniqueEmail(email)) {
-      await addDoc(usersRef, data);
-      await createUserWithEmailAndPassword(auth, email, password);
-      alert('Successfully created new staff data!');
-      window.location.reload();
+        addDoc(usersRef, data).then(() => {
+            createUserWithEmailAndPassword(auth, email, password).then(() => {
+                alert(`Successfully created new staff data!\nEmail: ${email}\nPassword: ${password}`);
+                window.location.reload();
+            });
+        });
     } else {
       setError('Staff already exists!');
     }

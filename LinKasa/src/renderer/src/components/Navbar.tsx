@@ -1,9 +1,9 @@
 import { onAuthStateChanged } from 'firebase/auth';
-import React, { useState } from 'react';
-import { auth } from '../../../../firebase.config';
+import { useState } from 'react';
 import NavbarController from '../controller/NavbarController';
+import { auth } from '../../../firebase/firebase';
 
-const Navbar = () => {
+const Navbar = () : JSX.Element => {
   const [logged, setLogged] = useState(false);
 
   onAuthStateChanged(auth, (user) => {
@@ -31,3 +31,4 @@ const Navbar = () => {
 };
 
 export default Navbar;
+
