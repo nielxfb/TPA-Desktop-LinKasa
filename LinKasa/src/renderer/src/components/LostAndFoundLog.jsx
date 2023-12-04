@@ -16,7 +16,6 @@ const LostAndFoundLog = () => {
 
   useEffect(() => {
     const fetchLostItems = async () => {
-      if(!authorized) return;
       const q = collection(db, 'items');
       const querySnapshot = await getDocs(q);
       const items = [];

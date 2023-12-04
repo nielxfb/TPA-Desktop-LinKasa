@@ -28,8 +28,6 @@ function NavbarController() {
     getUsers();
   }, [q, role]);
 
-  console.log(role);
-
   return (
     <>
         {role === 'HRD' && (
