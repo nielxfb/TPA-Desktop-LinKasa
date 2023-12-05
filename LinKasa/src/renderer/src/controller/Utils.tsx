@@ -40,7 +40,7 @@ const queryFromCollection = (collectionName: string, field: string, target: stri
     return query(usersRef, where(field, '==', target));
 }
 
-const useRoleCheck = (role: string) => {
+const useRoleCheck = (roles: string[]) => {
     const loggedIn = useLoggedIn();
     const email = useEmail();
     const [isAuthorized, setIsAuthorized] = useState(false);
@@ -54,14 +54,14 @@ const useRoleCheck = (role: string) => {
 
             querySnapshot.forEach((doc) => {
                 const userData = doc.data();
-                if (userData.role === role) {
-                    setIsAuthorized(true);
+                if(roles.includes(userData.role)){
+                  setIsAuthorized(true);
                 }
             })
         }
 
         checkRole();
-    }, [loggedIn, email, role]);
+    }, [loggedIn, email, roles]);
 
     return isAuthorized;
 }
