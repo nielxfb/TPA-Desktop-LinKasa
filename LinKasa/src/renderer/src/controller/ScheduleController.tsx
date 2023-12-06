@@ -1,8 +1,8 @@
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "../../../firebase/firebase";
-import { Schedule } from "@renderer/model/Schedule";
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../../../firebase/firebase';
+import { Schedule } from '@renderer/model/Schedule';
 
-const fetchSchedules = async() => {
+const fetchSchedules = async (): Promise<Schedule[]> => {
   const q = collection(db, 'departures');
   const querySnapshot = await getDocs(q);
   const departures: Schedule[] = [];
@@ -12,6 +12,6 @@ const fetchSchedules = async() => {
   });
 
   return departures;
-}
+};
 
-export { fetchSchedules }
+export { fetchSchedules };

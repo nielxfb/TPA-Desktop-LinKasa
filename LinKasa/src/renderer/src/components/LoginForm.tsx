@@ -9,7 +9,7 @@ function LoginForm(): JSX.Element {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = (e): void => {
     e.preventDefault();
 
     signInWithEmailAndPassword(auth, email, password)
@@ -19,7 +19,7 @@ function LoginForm(): JSX.Element {
       .catch(() => {
         setError('Invalid email or password');
       });
-  }
+  };
 
   return (
     <div className="max-w-md mx-auto mt-8 p-8 bg-white shadow-lg rounded-md">
