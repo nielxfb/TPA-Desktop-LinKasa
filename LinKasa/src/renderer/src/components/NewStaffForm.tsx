@@ -28,7 +28,6 @@ function NewStaffForm(): JSX.Element {
           </label>
           <input
             type="text"
-            value={name}
             onChange={(e) => setName(e.target.value)}
             className="mt-1 p-2 w-full border rounded-md"
             required
@@ -40,7 +39,6 @@ function NewStaffForm(): JSX.Element {
           </label>
           <input
             type="date"
-            value={dob}
             onChange={(e) => setDob(e.target.value)}
             className="mt-1 p-2 w-full border rounded-md"
             required
@@ -52,7 +50,6 @@ function NewStaffForm(): JSX.Element {
           </label>
           <input
             type="text"
-            value={address}
             onChange={(e) => setAddress(e.target.value)}
             className="mt-1 p-2 w-full border rounded-md"
             required
@@ -63,9 +60,6 @@ function NewStaffForm(): JSX.Element {
             Role
           </label>
           <select
-            id="role"
-            name="role"
-            value={role}
             onChange={(e) => setRole(e.target.value)}
             className="mt-1 p-2 w-full border rounded-md"
             required
