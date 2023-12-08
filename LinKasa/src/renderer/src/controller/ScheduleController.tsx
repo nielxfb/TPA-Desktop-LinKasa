@@ -3,7 +3,6 @@ import { db, storage } from '../../../firebase/firebase';
 import { Schedule } from '@renderer/model/Schedule';
 import { queryFromCollection } from './Utils';
 import { getDownloadURL, ref } from 'firebase/storage';
-import { useState } from 'react';
 
 const fetchSchedules = async (): Promise<Schedule[]> => {
   const q = collection(db, 'departures');
@@ -57,7 +56,6 @@ const handleSubmitForm = async (
       window.location.reload();
     });
   });
-
 };
 
 export { fetchSchedules, handleSubmitForm };

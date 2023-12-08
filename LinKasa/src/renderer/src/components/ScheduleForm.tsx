@@ -22,7 +22,18 @@ function ScheduleForm(): JSX.Element {
   return (
     <div className="max-w-md mx-auto mt-8 p-8 bg-white shadow-lg rounded-md">
       <h2 className="text-2xl font-semibold mb-4">Create Flight Schedule</h2>
-      <form onSubmit={(e) => handleSubmitForm(e, airlineNameRef, flightNumberRef, destinationRef, departureTimeRef, setError)}>
+      <form
+        onSubmit={(e) =>
+          handleSubmitForm(
+            e,
+            airlineNameRef,
+            flightNumberRef,
+            destinationRef,
+            departureTimeRef,
+            setError
+          )
+        }
+      >
         <div className="mb-4">
           <label htmlFor="airline-name" className="block text-sm font-medium text-gray-600">
             Airline Name
@@ -53,7 +64,11 @@ function ScheduleForm(): JSX.Element {
           <label htmlFor="departure-time" className="block text-sm font-medium text-gray-600">
             Departure Time
           </label>
-          <input type="datetime-local" ref={departureTimeRef} className="mt-1 p-2 w-full border rounded-md" />
+          <input
+            type="datetime-local"
+            ref={departureTimeRef}
+            className="mt-1 p-2 w-full border rounded-md"
+          />
         </div>
         <button
           type="submit"
