@@ -1,10 +1,10 @@
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth, db } from '../../../firebase/firebase';
 import { useState, useEffect } from 'react';
-import { collection, getDocs, where, query, Query } from 'firebase/firestore';
+import { collection, where, query, Query } from 'firebase/firestore';
 
 const useLoggedIn = (): boolean => {
-  const [isLogged, setIsLogged] = useState(false);
+  const [isLogged, setIsLogged] = useState<boolean>(false);
 
   useEffect(() => {
     const check = (): void => {
@@ -20,7 +20,7 @@ const useLoggedIn = (): boolean => {
 };
 
 const useEmail = (): string => {
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState<string>('');
 
   useEffect(() => {
     const check = (): void => {
@@ -40,30 +40,4 @@ const queryFromCollection = (collectionName: string, field: string, target: stri
   return query(usersRef, where(field, '==', target));
 };
 
-const useRoleCheck = (roles: string[]): boolean => {
-  const loggedIn = useLoggedIn();
-  const email = useEmail();
-  const [isAuthorized, setIsAuthorized] = useState(false);
-
-  useEffect(() => {
-    const checkRole = async (): Promise<void> => {
-      if (!loggedIn) return;
-
-      const q = queryFromCollection('users', 'email', email);
-      const querySnapshot = await getDocs(q);
-
-      querySnapshot.forEach((doc) => {
-        const userData = doc.data();
-        if (roles.includes(userData.role)) {
-          setIsAuthorized(true);
-        }
-      });
-    };
-
-    checkRole();
-  }, [loggedIn, email, roles]);
-
-  return isAuthorized;
-};
-
-export { useLoggedIn, useEmail, queryFromCollection, useRoleCheck };
+export { useLoggedIn, useEmail, queryFromCollection };

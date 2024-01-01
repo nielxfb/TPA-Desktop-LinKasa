@@ -9,8 +9,7 @@ const fetchSchedules = async (): Promise<Schedule[]> => {
   const querySnapshot = await getDocs(q);
   const departures: Schedule[] = [];
   querySnapshot.forEach((doc) => {
-    const departureData = doc.data() as Schedule;
-    departures.push(departureData);
+    departures.push(doc.data() as Schedule);
   });
 
   return departures;

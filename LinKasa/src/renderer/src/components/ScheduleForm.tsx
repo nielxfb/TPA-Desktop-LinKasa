@@ -1,9 +1,10 @@
 import { handleSubmitForm } from '@renderer/controller/ScheduleController';
-import { useRoleCheck } from '@renderer/controller/Utils';
+import { useAuth } from '@renderer/model/AuthContext';
 import { useRef, useState } from 'react';
 
 function ScheduleForm(): JSX.Element {
-  const authorized = useRoleCheck(['Flight Operations Manager', 'COO']);
+  const { user } = useAuth();
+  const authorized = user?.role === 'Flight Operations Manager' || user?.role === 'COO';
   const [error, setError] = useState<string>('');
 
   const airlineNameRef = useRef<HTMLSelectElement>(null);

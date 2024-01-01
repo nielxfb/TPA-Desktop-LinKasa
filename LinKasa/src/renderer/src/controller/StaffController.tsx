@@ -1,7 +1,22 @@
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { Timestamp, addDoc, collection, getDocs } from 'firebase/firestore';
+import {
+  createUserWithEmailAndPassword,
+  deleteUser,
+  signInWithEmailAndPassword
+} from 'firebase/auth';
+import {
+  DocumentReference,
+  Timestamp,
+  addDoc,
+  collection,
+  deleteDoc,
+  getDocs,
+  orderBy,
+  query,
+  updateDoc
+} from 'firebase/firestore';
 import { auth, db } from '../../../firebase/firebase';
 import { queryFromCollection } from './Utils';
+import { User } from '@renderer/model/User';
 
 function StaffController(
   e: React.FormEvent<HTMLFormElement>,
@@ -9,7 +24,9 @@ function StaffController(
   dob: string,
   address: string,
   role: string,
-  setError: React.Dispatch<React.SetStateAction<string>>
+  setError: React.Dispatch<React.SetStateAction<string>>,
+  hrdEmail: string,
+  hrdPassword: string
 ): void {
   e.preventDefault();
 
@@ -66,19 +83,85 @@ function StaffController(
       role: role
     };
 
-    if ((await checkUniqueName()) && ageValid && (await checkUniqueEmail(email))) {
+    const isNameUnique = await checkUniqueName();
+    const isEmailUnique = await checkUniqueEmail(email);
+
+    if (isNameUnique && ageValid && isEmailUnique) {
       addDoc(usersRef, data).then(() => {
         createUserWithEmailAndPassword(auth, email, password).then(() => {
           alert(`Successfully created new staff data!\nEmail: ${email}\nPassword: ${password}`);
-          window.location.reload();
+          signInWithEmailAndPassword(auth, hrdEmail, hrdPassword).then(() => {
+            window.location.reload();
+          });
         });
       });
     } else {
       setError('Staff already exists!');
+      return;
     }
   };
 
   createStaff();
 }
+
+export const fetchStaffs = async (): Promise<User[]> => {
+  const usersRef = collection(db, 'users');
+  const q = query(usersRef, orderBy('name'));
+
+  const users: User[] = [];
+
+  const querySnapshot = await getDocs(q);
+  querySnapshot.forEach((doc) => {
+    users.push(doc.data() as User);
+  });
+
+  return users;
+};
+
+export const updateRole = async (
+  setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>,
+  name: string,
+  role: string
+): Promise<void> => {
+  setIsModalOpen(false);
+
+  const q = queryFromCollection('users', 'name', name);
+  const querySnapshot = await getDocs(q);
+  let docRef: DocumentReference | undefined;
+
+  querySnapshot.forEach((doc) => {
+    docRef = doc.ref;
+  });
+
+  if (docRef && role) {
+    updateDoc(docRef, {
+      role: role
+    }).then(() => {
+      alert('Successfully updated staff role!');
+    });
+  }
+};
+
+export const removeStaff = async (
+  name: string,
+  hrdEmail: string,
+  hrdPassword: string
+): Promise<void> => {
+  const q = queryFromCollection('users', 'name', name);
+  const querySnapshot = await getDocs(q);
+
+  querySnapshot.forEach((doc) => {
+    signInWithEmailAndPassword(auth, doc.data().email, doc.data().password).then(() => {
+      deleteUser(auth.currentUser!).then(() => {
+        deleteDoc(doc.ref).then(() => {
+          alert('Staff removed successfully.');
+          signInWithEmailAndPassword(auth, hrdEmail, hrdPassword).then(() => {
+            window.location.reload();
+          });
+        });
+      });
+    });
+  });
+};
 
 export default StaffController;

@@ -87,7 +87,10 @@ const handleEditStatus = async (
   selectedStatus: string,
   setError: React.Dispatch<React.SetStateAction<string>>,
   setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>,
-  selectedItemName: string
+  selectedItemName: string,
+  nameRef: React.RefObject<HTMLInputElement>,
+  descriptionRef: React.RefObject<HTMLInputElement>,
+  imageRef: React.RefObject<HTMLInputElement>
 ): Promise<void> => {
   if (selectedStatus === '') {
     setError('Please set item status!');
@@ -105,13 +108,31 @@ const handleEditStatus = async (
     docRef = doc.ref;
   });
 
-  if (docRef) {
-    updateDoc(docRef, {
-      status: selectedStatus
-    }).then(() => {
-      alert('Successfully updated item status!');
-      window.location.reload();
+  const name = nameRef.current?.value;
+  const description = descriptionRef.current?.value;
+  const image = imageRef.current?.files?.[0];
+
+  if (image) {
+    const storageRef = ref(storage, 'images/' + image.name);
+    uploadBytes(storageRef, image).then((snapshot) => {
+      getDownloadURL(snapshot.ref).then((url) => {
+        if (docRef) {
+          updateDoc(docRef, {
+            description: description,
+            image_url: url,
+            name: name,
+            status: selectedStatus
+          }).then(() => {
+            alert('Successfully updated item!');
+            window.location.reload();
+          });
+        } else {
+          alert('Error updating item.');
+        }
+      });
     });
+  } else {
+    alert('No image selected.');
   }
 };
 
@@ -125,8 +146,7 @@ const fetchLostItems = async (): Promise<Item[]> => {
   const querySnapshot = await getDocs(q);
   const items: Item[] = [];
   querySnapshot.forEach((doc) => {
-    const itemData = doc.data() as Item;
-    items.push(itemData);
+    items.push(doc.data() as Item);
   });
 
   return items;

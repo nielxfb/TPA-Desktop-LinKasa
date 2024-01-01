@@ -1,14 +1,17 @@
 import { useState } from 'react';
 import StaffController from '../controller/StaffController';
-import { useRoleCheck } from '@renderer/controller/Utils';
+import { useAuth } from '@renderer/model/AuthContext';
 
 function NewStaffForm(): JSX.Element {
-  const authorized = useRoleCheck(['HRD']);
+  const { user } = useAuth();
+  const authorized = user?.role === 'HRD';
   const [name, setName] = useState<string>('');
   const [dob, setDob] = useState<string>('');
   const [address, setAddress] = useState<string>('');
   const [role, setRole] = useState<string>('Customer Service Manager');
   const [error, setError] = useState<string>('');
+  const hrdEmail = user?.email ? user.email : '';
+  const hrdPassword = user?.password ? user.password : '';
 
   if (!authorized) {
     return (
@@ -21,11 +24,13 @@ function NewStaffForm(): JSX.Element {
   return (
     <div className="max-w-md mx-auto mt-8 p-8 bg-white shadow-lg rounded-md">
       <h2 className="text-2xl font-semibold mb-4">Create New Staff</h2>
-      <form onSubmit={(e) => StaffController(e, name, dob, address, role, setError)}>
+      <form
+        onSubmit={(e) =>
+          StaffController(e, name, dob, address, role, setError, hrdEmail, hrdPassword)
+        }
+      >
         <div className="mb-4">
-          <label htmlFor="name" className="block text-sm font-medium text-gray-600">
-            Name
-          </label>
+          <label className="block text-sm font-medium text-gray-600">Name</label>
           <input
             type="text"
             onChange={(e) => setName(e.target.value)}
@@ -34,9 +39,7 @@ function NewStaffForm(): JSX.Element {
           />
         </div>
         <div className="mb-4">
-          <label htmlFor="dob" className="block text-sm font-medium text-gray-600">
-            Date of Birth
-          </label>
+          <label className="block text-sm font-medium text-gray-600">Date of Birth</label>
           <input
             type="date"
             onChange={(e) => setDob(e.target.value)}
@@ -45,9 +48,7 @@ function NewStaffForm(): JSX.Element {
           />
         </div>
         <div className="mb-4">
-          <label htmlFor="address" className="block text-sm font-medium text-gray-600">
-            Address
-          </label>
+          <label className="block text-sm font-medium text-gray-600">Address</label>
           <input
             type="text"
             onChange={(e) => setAddress(e.target.value)}
@@ -56,9 +57,7 @@ function NewStaffForm(): JSX.Element {
           />
         </div>
         <div className="mb-4">
-          <label htmlFor="role" className="block text-sm font-medium text-gray-600">
-            Role
-          </label>
+          <label className="block text-sm font-medium text-gray-600">Role</label>
           <select
             onChange={(e) => setRole(e.target.value)}
             className="mt-1 p-2 w-full border rounded-md"
@@ -82,7 +81,7 @@ function NewStaffForm(): JSX.Element {
             <option value="Baggage Security Supervisor">Baggage Security Supervisor</option>
             <option value="Baggage Security Staff">Baggage Security Staff</option>
             <option value="Cargo Manager">Cargo Manager</option>
-            <option value="Logistic Manager">Logistic Manager</option>
+            <option value="Logistics Manager">Logistics Manager</option>
             <option value="Fuel Manager">Fuel Manager</option>
             <option value="Cargo Handlers">Cargo Handlers</option>
             <option value="Civil Engineering Manager">Civil Engineering Manager</option>

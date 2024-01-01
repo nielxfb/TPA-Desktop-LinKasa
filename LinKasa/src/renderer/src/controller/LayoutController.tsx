@@ -1,53 +1,57 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import LoginForm from '../components/LoginForm';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { auth, db } from '../../../firebase/firebase';
+import { useAuth } from '@renderer/model/AuthContext';
 
-function LayoutController() {
+function LayoutController(): JSX.Element {
   const [logged, setLogged] = useState(false);
   const [email, setEmail] = useState<string>('');
-  const [name, setName] = useState<string>('');
-
-  onAuthStateChanged(auth, (user) => {
-    if(user){
-      setEmail(user.email);
-      setLogged(true);
-    }
-  });
-
-  const usersRef = collection(db, "users");
-  const q = query(usersRef, where('email', '==', email));
+  const { user, setUser } = useAuth();
 
   useEffect(() => {
-    const setUserAttributes = async () => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user && user.email) {
+        setEmail(user.email);
+        setLogged(true);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const setUserAttributes = async (): Promise<void> => {
+      const usersRef = collection(db, 'users');
+      const q = query(usersRef, where('email', '==', email));
+
       const querySnapshot = await getDocs(q);
 
       querySnapshot.forEach((doc) => {
         const userData = doc.data();
-        setName(userData.name);
+        const { name, role, email, password, dob, address } = userData;
+        setUser({ name, role, email, password, dob, address });
       });
-    }
+    };
 
-    setUserAttributes();
-  }, [q, name]);
+    if (email) {
+      setUserAttributes();
+    }
+  }, [email]);
 
   return (
     <>
       {logged && (
-        <div className='flex flex-col justify-center items-center'>
-          <h1 className='text-2xl font-bold mt-4'>Hello, {name}!</h1>
-          <h2 className='text-xl'>
-            What can we help you today?
-          </h2>
+        <div className="flex flex-col justify-center items-center">
+          <h1 className="text-2xl font-bold mt-4">Hello, {user?.name}!</h1>
+          <h2 className="text-xl">What can we help you today?</h2>
         </div>
       )}
 
-      {!logged && (
-        <LoginForm />
-      )}
+      {!logged && <LoginForm />}
     </>
-  )
+  );
 }
 
-export default LayoutController
+export default LayoutController;

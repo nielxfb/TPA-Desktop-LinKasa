@@ -2,10 +2,16 @@ import { useEffect, useState } from 'react';
 import { Schedule } from '@renderer/model/Schedule';
 import { fetchSchedules } from '@renderer/controller/ScheduleController';
 import { Link, Outlet } from 'react-router-dom';
-import { useRoleCheck } from '@renderer/controller/Utils';
+import { useAuth } from '@renderer/model/AuthContext';
 
 function FlightSchedules(): JSX.Element {
-  const authorized = useRoleCheck(['Flight Operations Manager', 'COO']);
+  const { user } = useAuth();
+  const authorized =
+    user?.role === 'Flight Operations Manager' ||
+    user?.role === 'Airport Operations Manager' ||
+    user?.role === 'COO' ||
+    user?.role === 'Information Desk Staff' ||
+    user?.role === 'Check-in Staff';
   const [schedules, setSchedules] = useState<Schedule[]>([]);
 
   useEffect(() => {

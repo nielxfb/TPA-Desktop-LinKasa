@@ -1,12 +1,13 @@
 import { useRef, useState } from 'react';
 import ReactModal from 'react-modal';
 import { closeModal, handleNewItem, handleStatusChange } from '@renderer/controller/ItemController';
-import { useRoleCheck } from '@renderer/controller/Utils';
+import { useAuth } from '@renderer/model/AuthContext';
 
 ReactModal.setAppElement('#root');
 
 function ItemForm(): JSX.Element {
-  const authorized = useRoleCheck(['Lost and Found Staff']);
+  const { user } = useAuth();
+  const authorized = user?.role === 'Lost and Found Staff';
   const [error, setError] = useState<string>('');
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedStatus, setSelectedStatus] = useState<string>('');
